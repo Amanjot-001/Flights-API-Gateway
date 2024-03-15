@@ -10,7 +10,7 @@ const { ServerConfig, Logger } = require('./config');
 
 const limiter = rateLimit({
     windowMs: 2 * 60 * 1000, // 2 minutes
-    max: 3, // Limit each IP to 3 requests per `window`
+    max: 5, // Limit each IP to 3 requests per `window`
 });
 
 app.use(express.json());
