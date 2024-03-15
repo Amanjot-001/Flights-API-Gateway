@@ -1,5 +1,5 @@
 const { StatusCodes } = require('http-status-codes')
-const { UserRepository , RoleRepository } = require('../repositories')
+const { UserRepository, RoleRepository } = require('../repositories')
 const AppError = require('../utils/errors/app-errors')
 const { ServerConfig } = require('../config')
 const { Auth, Enums } = require('../utils/common');
@@ -60,9 +60,28 @@ async function isAuthenticated(token) {
         if (error.name == 'JsonWebTokenError') {
             throw new AppError('Invalid JWT token', StatusCodes.BAD_REQUEST);
         }
-        if(error.name == 'TokenExpiredError') {
+        if (error.name == 'TokenExpiredError') {
             throw new AppError('JWT token expired', StatusCodes.BAD_REQUEST);
         }
+        throw new AppError('Something went wrong', StatusCodes.INTERNAL_SERVER_ERROR);
+    }
+}
+
+async function addRoletoUser(data) {
+    try {
+        const user = await userRepo.get(data.id);
+        if (!user) {
+            throw new AppError('No user found for the given id', StatusCodes.NOT_FOUND);
+        }
+        const role = await roleRepo.getRoleByName(data.role);
+        if (!role) {
+            throw new AppError('No user found for the given role', StatusCodes.NOT_FOUND);
+        }
+        user.addRole(role);
+        return user;
+    } catch (error) {
+        if (error instanceof AppError) throw error;
+        console.log(error);
         throw new AppError('Something went wrong', StatusCodes.INTERNAL_SERVER_ERROR);
     }
 }
@@ -70,5 +89,6 @@ async function isAuthenticated(token) {
 module.exports = {
     create,
     signin,
-    isAuthenticated
+    isAuthenticated,
+    addRoletoUser
 }
